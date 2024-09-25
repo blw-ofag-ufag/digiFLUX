@@ -1,0 +1,3836 @@
+---
+openapi: 3.0.3
+info:
+  title: Digiflux Transactions Service Interface
+  description: Service that allows the administration of product shipments and product
+    applications.
+  version: "0.1"
+servers:
+- url: http://localhost:8080
+paths:
+  /digiflux/core/transactions/application:
+    get:
+      tags:
+      - Product Application Resource
+      summary: Search for product applications
+      description: Search for product applications by specifying filter criterias.
+      parameters:
+      - name: alternateIdId
+        in: query
+        description: Id of the alternateId
+        schema:
+          type: string
+      - name: alternateIdSourceSystem
+        in: query
+        description: SourceSystemId of the alternateId
+        schema:
+          type: string
+      - name: areaId
+        in: query
+        description: The id of the area to which the product was applied
+        schema:
+          type: string
+      - name: areaSourceSystem
+        in: query
+        description: "The source system that issued the area id. If this is left empty,\
+          \ the areaId is interpreted as an internal id."
+        schema:
+          type: string
+      - name: comment
+        in: query
+        description: Filter for applications that contain this term in their comment
+        schema:
+          type: string
+      - name: createdAtFrom
+        in: query
+        description: Records that were created at or after this point in time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: createdAtTo
+        in: query
+        description: Records that were created at or before this point in time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: dateOfApplicationFrom
+        in: query
+        description: Records with an application date equal or after this point in
+          time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: dateOfApplicationTo
+        in: query
+        description: Records with an application date equal or before this point in
+          time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: locationOfApplication
+        in: query
+        description: Location of application (= BUR-Number)
+        schema:
+          maxLength: 9
+          minLength: 9
+          pattern: "[A-B][1-9]{1}[0-9]{7}"
+      - name: max
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: modifiedAfter
+        in: query
+        description: Records that were modified after this point in time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: order
+        in: query
+        description: Specify the sort order.
+        schema:
+          $ref: '#/components/schemas/SortOrder'
+      - name: productCategory
+        in: query
+        description: The product category.
+        schema:
+          type: string
+      - name: productFamily
+        in: query
+        description: The product familiy.
+        schema:
+          $ref: '#/components/schemas/ProductFamilyType'
+      - name: productId
+        in: query
+        description: Id of product
+        schema:
+          type: string
+      - name: productSourceSystem
+        in: query
+        description: Product Source system
+        schema:
+          type: string
+      - name: sort
+        in: query
+        description: Specify the sort order by providing the name of the field.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A list of inventoryAPI.yml that match the filter criteria.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlantProtectionProductApplicationType'
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+    put:
+      tags:
+      - Product Application Resource
+      summary: Update an application transaction
+      description: Use the internal id to specify the transaction to be updated.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantProtectionProductApplicationType'
+      responses:
+        "200":
+          description: no return value
+        "400":
+          description: The client request contains invalid data.
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: The user is not allowed to execute this request.
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+    post:
+      tags:
+      - Product Application Resource
+      summary: Add and store new application transaction
+      description: Creates a new application entry. (The id of the passed object is
+        ignored.)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantProtectionProductApplicationType'
+      responses:
+        "201":
+          description: Application transaction was successfully registered. Returns
+            generated id of the new application.
+        "400":
+          description: The client request contains invalid data.
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: The user is not allowed to execute this request.
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+  /digiflux/core/transactions/application/admin-application:
+    get:
+      tags:
+      - Application Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoAdminApplicationSearchResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Federal
+        - digiFlux.Enforcement
+  /digiflux/core/transactions/application/admin-export:
+    get:
+      tags:
+      - Application Export Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Federal
+        - digiFlux.Enforcement
+  /digiflux/core/transactions/application/area:
+    put:
+      tags:
+      - Application Update Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationAreaTypeUpdateDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                format: int64
+                type: integer
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+    post:
+      tags:
+      - Application Update Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationAreaTypeCreateDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                format: int64
+                type: integer
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+  /digiflux/core/transactions/application/convert:
+    put:
+      tags:
+      - Application Update Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationConvertDto'
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+  /digiflux/core/transactions/application/delete:
+    put:
+      tags:
+      - Application Update Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationUpdateStatusDto'
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+  /digiflux/core/transactions/application/detail:
+    get:
+      tags:
+      - Application Detail Resource
+      parameters:
+      - name: id
+        in: query
+        schema:
+          $ref: '#/components/schemas/UUID'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationDetailDto'
+  /digiflux/core/transactions/application/export:
+    get:
+      tags:
+      - Application Export Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /digiflux/core/transactions/application/inventory-application:
+    get:
+      tags:
+      - Application Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoInventoryApplicationSearchResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Federal
+        - digiFlux.Enforcement
+        - digiFlux.User
+        - digiFlux.Support
+        - digiFlux.Control
+  /digiflux/core/transactions/application/revert:
+    put:
+      tags:
+      - Application Update Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationUpdateStatusDto'
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+  /digiflux/core/transactions/application/seed:
+    put:
+      tags:
+      - Application Update Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSeedTypeUpdateDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                format: int64
+                type: integer
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+    post:
+      tags:
+      - Application Update Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSeedTypeCreateDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                format: int64
+                type: integer
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+  /digiflux/core/transactions/application/{applicationId}:
+    get:
+      tags:
+      - Product Application Resource
+      summary: Retrieve a product application by its id
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          format: int32
+          type: integer
+      responses:
+        "200":
+          description: The product application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantProtectionProductApplicationType'
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: No permission to read this record.
+        "404":
+          description: The product application does not exist or the user does not
+            have the permission to see it.
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+    delete:
+      tags:
+      - Product Application Resource
+      summary: Delete application transaction
+      description: Deletes an application entry.
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema:
+          format: int32
+          type: integer
+      responses:
+        "204":
+          description: Deletion was successful
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: No permission to delete this record.
+        "404":
+          description: Application was not found
+        "412":
+          description: "Deletion is not possible, because this application record\
+            \ is not in a deletable state."
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+  /digiflux/core/transactions/cultivation:
+    get:
+      tags:
+      - Cultivation Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoCultivationSearchResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.User
+        - digiFlux.Federal
+  /digiflux/core/transactions/deliveries:
+    delete:
+      tags:
+      - Delivery Action Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteDeliveryDto'
+      responses:
+        "204":
+          description: No Content
+  /digiflux/core/transactions/deliveries/acceptance:
+    put:
+      tags:
+      - Delivery Action Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptDeliveryDto'
+      responses:
+        "204":
+          description: No Content
+  /digiflux/core/transactions/deliveries/admin-export:
+    get:
+      tags:
+      - Delivery Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /digiflux/core/transactions/deliveries/all-deliveries:
+    get:
+      tags:
+      - Delivery Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoAllDeliverySearchResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Federal
+        - digiFlux.Enforcement
+        - digiFlux.Control
+  /digiflux/core/transactions/deliveries/closed-deliveries:
+    get:
+      tags:
+      - Delivery Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoClosedDeliverySearchResultDto'
+  /digiflux/core/transactions/deliveries/company-inventory:
+    post:
+      tags:
+      - Delivery Creation Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliveryToCompanyDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                format: int64
+                type: integer
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.AdminCore
+        - digiFlux.Enforcement
+        - digiFlux.Support
+  /digiflux/core/transactions/deliveries/detail:
+    get:
+      tags:
+      - Delivery Detail Resource
+      parameters:
+      - name: deliveryId
+        in: query
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - name: inventoryId
+        in: query
+        schema:
+          $ref: '#/components/schemas/UUID'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryDto'
+  /digiflux/core/transactions/deliveries/export:
+    get:
+      tags:
+      - Delivery Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /digiflux/core/transactions/deliveries/import/excel:
+    post:
+      tags:
+      - Delivery Import Resource
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                sourceFile:
+                  format: binary
+                  type: string
+            encoding:
+              sourceFile:
+                contentType: application/octet-stream
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResultDto'
+  /digiflux/core/transactions/deliveries/import/excel/template:
+    get:
+      tags:
+      - Delivery Import Resource
+      responses:
+        "200":
+          description: OK
+  /digiflux/core/transactions/deliveries/open-deliveries:
+    get:
+      tags:
+      - Delivery Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoOpenDeliverySearchResultDto'
+  /digiflux/core/transactions/deliveries/person-delivery:
+    post:
+      tags:
+      - Delivery Fetching Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FetchDeliveryRequestDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchDeliveryResultDto'
+  /digiflux/core/transactions/deliveries/person-inventory:
+    post:
+      tags:
+      - Delivery Creation Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliveryToPersonInventoryDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                format: int64
+                type: integer
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.AdminCore
+        - digiFlux.Support
+  /digiflux/core/transactions/deliveries/pseudo-inventory:
+    post:
+      tags:
+      - Delivery Creation Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliveryFromOrToPseudoInventoryDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                format: int64
+                type: integer
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.AdminCore
+        - digiFlux.Support
+  /digiflux/core/transactions/deliveries/rejection:
+    put:
+      tags:
+      - Delivery Action Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectDeliveryDto'
+      responses:
+        "204":
+          description: No Content
+  /digiflux/core/transactions/deliveries/reversion:
+    put:
+      tags:
+      - Delivery Action Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevertDeliveryDto'
+      responses:
+        "204":
+          description: No Content
+  /digiflux/core/transactions/product-catalog/favorite:
+    post:
+      tags:
+      - Product Catalog Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FavoritePsmUpdateDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: boolean
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.AdminCore
+  /digiflux/core/transactions/product-catalog/favorite-products-psm:
+    get:
+      tags:
+      - Product Catalog Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoSearchProductPsmResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.AdminCore
+  /digiflux/core/transactions/product-catalog/products-dressed-seed:
+    post:
+      tags:
+      - Product Catalog Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCriteriaDtoSearchProductDressedSeedCriteriaDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoSearchProductDressedSeedResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      deprecated: true
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.AdminCore
+  /digiflux/core/transactions/product-catalog/products-psm:
+    get:
+      tags:
+      - Product Catalog Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoSearchProductPsmResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.Support
+        - digiFlux.Enforcement
+        - digiFlux.AdminCore
+  /digiflux/core/transactions/products/admin-export:
+    get:
+      tags:
+      - Product Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Federal
+        - digiFlux.Enforcement
+        - digiFlux.Control
+  /digiflux/core/transactions/products/detail:
+    post:
+      tags:
+      - Product Detail Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCriteriaDtoProductDetailCriteriaDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoProductDetailSearchResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.Enforcement
+        - digiFlux.Federal
+        - digiFlux.Support
+        - digiFlux.AdminCore
+  /digiflux/core/transactions/products/export:
+    get:
+      tags:
+      - Product Overview Resource
+      parameters:
+      - name: criteria
+        in: query
+        schema:
+          type: string
+      - name: sortingCol
+        in: query
+        schema:
+          type: string
+      - name: sortingDirection
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.Enforcement
+        - digiFlux.Federal
+        - digiFlux.Support
+        - digiFlux.AdminCore
+  /digiflux/core/transactions/products/search-admin-products:
+    post:
+      tags:
+      - Product Overview Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCriteriaDtoProductAdminSearchDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoProductAdminSearchResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.AdminCore
+        - digiFlux.Federal
+        - digiFlux.Enforcement
+        - digiFlux.Control
+  /digiflux/core/transactions/products/search-inventory-products:
+    post:
+      tags:
+      - Product Overview Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCriteriaDtoProductInventorySearchDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultDtoProductInventorySearchResultDto'
+        "401":
+          description: Not Authorized
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.User
+        - digiFlux.Enforcement
+        - digiFlux.Federal
+        - digiFlux.Support
+        - digiFlux.AdminCore
+  /digiflux/core/transactions/v1/shipments:
+    get:
+      tags:
+      - Product Shipment Search Resource
+      summary: Search for product shipments
+      description: Search for product shipments by specifying filter criterias.
+      parameters:
+      - name: alternateIdId
+        in: query
+        description: Id of the alternateId
+        schema:
+          type: string
+      - name: alternateIdSourceSystem
+        in: query
+        description: SourceSystemId of the alternateId
+        schema:
+          type: string
+      - name: max
+        in: query
+        schema:
+          format: int32
+          default: "10"
+          type: integer
+      - name: modifiedAfter
+        in: query
+        description: Records that were modified after this timestamp
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: offset
+        in: query
+        schema:
+          format: int32
+          default: "0"
+          type: integer
+      - name: order
+        in: query
+        description: Specify the sort order.
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/SortOrder1'
+          - default: ASC
+      - name: productId
+        in: query
+        schema:
+          type: string
+      - name: productSourceSystemId
+        in: query
+        schema:
+          type: string
+      - name: registeredAtFrom
+        in: query
+        description: Filter for deliveries that were registered at or after this point
+          in time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: registeredAtTo
+        in: query
+        description: Filter for deliveries that were registered at at or before this
+          point in time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: shipmentDateFrom
+        in: query
+        description: Filter for delivery dates at or after this point in time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: shipmentDateTo
+        in: query
+        description: Filter for delivery dates at or before this point in time
+        schema:
+          $ref: '#/components/schemas/Date'
+      - name: shippedFromStockId
+        in: query
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - name: shippedToStockId
+        in: query
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - name: sort
+        in: query
+        description: Specify the sort order by providing the name of the field.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: A list of product shipments that match the filter criteria.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductShipmentType'
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: Not Allowed
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+    post:
+      tags:
+      - Product Shipment Update Resource
+      summary: Add and store a new 'shipment' transaction.
+      description: "Creates a new shipment entry. The id can be omitted, as it is\
+        \ ignored"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductShipmentType'
+      responses:
+        "201":
+          description: Shipment has been registered. Returns the generated id for
+            the new shipment.
+        "400":
+          description: The client request contains invalid data.
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: The user is not allowed to execute this request.
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+  /digiflux/core/transactions/v1/shipments/DIGIFLUX/{id}:
+    get:
+      tags:
+      - Product Shipment Search Resource
+      summary: Retrieve a 'shipment' transaction by its id.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/UUID'
+      responses:
+        "200":
+          description: The shipment transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductShipmentType'
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: No permission to read this record.
+        "404":
+          description: The shipment with the given id does not exist.
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+    delete:
+      tags:
+      - Product Shipment Update Resource
+      summary: Delete shipment
+      description: Deletes an shipment record.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/UUID'
+      responses:
+        "204":
+          description: Deletion was successful.
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: No permission to delete this record.
+        "404":
+          description: Application was not found.
+        "412":
+          description: "Deletion is not possible, because this application record\
+            \ is not in a deletable state."
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+  /digiflux/core/transactions/v1/shipments/DIGIFLUX/{id}/status:
+    put:
+      tags:
+      - Product Shipment Update Resource
+      summary: Update the acceptance status of an existing 'shipment' transaction.
+      description: Use the id to specify the transaction to be updated.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShipmentStatusDto'
+      responses:
+        "200":
+          description: The shipment was updated successfully.
+        "400":
+          description: The client request contains invalid data.
+        "401":
+          description: The user is not authorized.
+        "403":
+          description: The user is not allowed to execute this request.
+        "404":
+          description: Invalid shipment Id.
+        "417":
+          description: Inventory is blocked.
+      security:
+      - SecurityScheme:
+        - digiFlux.CoreAllow
+components:
+  schemas:
+    AcceptDeliveries:
+      enum:
+      - AUTOMATICALLY
+      - AFTER_WAITING_PERIOD
+      - MANUALLY
+      type: string
+    AcceptDeliveryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+    AddressDto:
+      type: object
+      properties:
+        street:
+          type: string
+        houseNumber:
+          type: string
+        town:
+          type: string
+        plz:
+          type: string
+        cantonOfResidence:
+          $ref: '#/components/schemas/Canton'
+        locationOfInventory:
+          $ref: '#/components/schemas/Canton'
+    AddressType:
+      description: |
+        Entity that describes an 'address'.
+      required:
+      - name
+      - givenName
+      - zip
+      - city
+      - canton
+      - email
+      - dateOfBirth
+      type: object
+      properties:
+        name:
+          type: string
+        givenName:
+          type: string
+        zip:
+          type: string
+        city:
+          type: string
+        canton:
+          $ref: '#/components/schemas/Canton'
+        email:
+          type: string
+        dateOfBirth:
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/LocalDate'
+        phone:
+          type: string
+    AdminApplicationSearchResultDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        usedOn:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+        productApplications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationDto'
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationAction'
+        uid:
+          type: string
+        bur:
+          type: string
+        name:
+          type: string
+        businessName:
+          type: string
+        locationOfInventory:
+          $ref: '#/components/schemas/Canton'
+        cantonOfResidence:
+          $ref: '#/components/schemas/Canton'
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+    AgronomicCropCategoryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        designations:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+    AllDeliverySearchResultDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        deliveryComment:
+          type: string
+        deliveryExternalNo:
+          type: string
+        productCatalogDto:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductCatalogDto'
+        deliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        senderRepresent:
+          $ref: '#/components/schemas/InventoryRepresentDto'
+        recipientRepresent:
+          $ref: '#/components/schemas/InventoryRepresentDto'
+        actions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryAction'
+        transactionNumber:
+          format: int64
+          type: integer
+    ApplicationAction:
+      enum:
+      - CREATE
+      - EDIT
+      - DELETE
+      - REVERT
+      - INFO
+      type: string
+    ApplicationAreaTypeCreateDto:
+      required:
+      - inventoryId
+      - applicationDate
+      - applicationType
+      - appliedQuantity
+      - productApplications
+      type: object
+      properties:
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        applicationType:
+          $ref: '#/components/schemas/ApplicationType'
+        appliedQuantity:
+          $ref: '#/components/schemas/AppliedQuantity'
+        cultivation:
+          $ref: '#/components/schemas/CultivationApplicationDto'
+        productApplications:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationCreateDto'
+    ApplicationAreaTypeUpdateDto:
+      required:
+      - inventoryId
+      - applicationDate
+      - applicationType
+      - appliedQuantity
+      - id
+      - productApplications
+      - version
+      type: object
+      properties:
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        applicationType:
+          $ref: '#/components/schemas/ApplicationType'
+        appliedQuantity:
+          $ref: '#/components/schemas/AppliedQuantity'
+        id:
+          $ref: '#/components/schemas/UUID'
+        productApplications:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationUpdateDto'
+        version:
+          format: int32
+          type: integer
+    ApplicationConvertDto:
+      type: object
+      properties:
+        convertDate:
+          $ref: '#/components/schemas/LocalDate'
+        originalCultivationId:
+          $ref: '#/components/schemas/UUID'
+        newCultivationId:
+          $ref: '#/components/schemas/UUID'
+    ApplicationDetailDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        botCulture:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+        variety:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+        cultureId:
+          $ref: '#/components/schemas/UUID'
+        varietyId:
+          $ref: '#/components/schemas/UUID'
+        productApplications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationDto'
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        applicationType:
+          $ref: '#/components/schemas/ApplicationType'
+        appliedQuantity:
+          $ref: '#/components/schemas/AppliedQuantity'
+        quantity:
+          type: number
+        unit:
+          $ref: '#/components/schemas/ProductUnit'
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationAction'
+        histories:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationHistoryDto'
+        transactionNumber:
+          format: int64
+          type: integer
+        seedId:
+          $ref: '#/components/schemas/UUID'
+        seedVersion:
+          format: int32
+          type: integer
+        cultivation:
+          $ref: '#/components/schemas/CultivationDto'
+    ApplicationDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        productApplications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationDto1'
+    ApplicationHistoryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        changedBy:
+          type: string
+        changeDate:
+          $ref: '#/components/schemas/LocalDateTime'
+        action:
+          $ref: '#/components/schemas/ApplicationAction'
+    ApplicationSeedCreateDto:
+      required:
+      - cultureId
+      - unit
+      - quantity
+      type: object
+      properties:
+        varietyId:
+          $ref: '#/components/schemas/UUID'
+        cultureId:
+          $ref: '#/components/schemas/UUID'
+        unit:
+          $ref: '#/components/schemas/ProductUnit'
+        quantity:
+          type: number
+    ApplicationSeedTypeCreateDto:
+      required:
+      - inventoryId
+      - applicationDate
+      - applicationType
+      - appliedQuantity
+      - productApplications
+      type: object
+      properties:
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        applicationType:
+          $ref: '#/components/schemas/ApplicationType'
+        appliedQuantity:
+          $ref: '#/components/schemas/AppliedQuantity'
+        seed:
+          $ref: '#/components/schemas/ApplicationSeedCreateDto'
+        productApplications:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationCreateDto'
+    ApplicationSeedTypeUpdateDto:
+      required:
+      - inventoryId
+      - applicationDate
+      - applicationType
+      - appliedQuantity
+      - id
+      - productApplications
+      - version
+      - seed
+      type: object
+      properties:
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        applicationType:
+          $ref: '#/components/schemas/ApplicationType'
+        appliedQuantity:
+          $ref: '#/components/schemas/AppliedQuantity'
+        id:
+          $ref: '#/components/schemas/UUID'
+        productApplications:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationUpdateDto'
+        version:
+          format: int32
+          type: integer
+        seed:
+          $ref: '#/components/schemas/ApplicationSeedUpdateDto'
+    ApplicationSeedUpdateDto:
+      required:
+      - cultureId
+      - unit
+      - quantity
+      - id
+      - version
+      type: object
+      properties:
+        varietyId:
+          $ref: '#/components/schemas/UUID'
+        cultureId:
+          $ref: '#/components/schemas/UUID'
+        unit:
+          $ref: '#/components/schemas/ProductUnit'
+        quantity:
+          type: number
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+    ApplicationStatus:
+      enum:
+      - CREATED
+      - DELETED
+      type: string
+    ApplicationType:
+      enum:
+      - AREA
+      - DRESSED_SEED
+      type: string
+    ApplicationUpdateStatusDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+    AppliedQuantity:
+      enum:
+      - PER_APPLICATION
+      - PER_KG_SEEDS
+      - PER_M2
+      - PER_HA
+      type: string
+    AreaLayer:
+      enum:
+      - DIGIFLUX
+      - KAIS
+      type: string
+    BotanicalPlantDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        designations:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+    BotanicalPlantType:
+      required:
+      - botanicalPlant
+      - variety
+      type: object
+      properties:
+        botanicalPlant:
+          $ref: '#/components/schemas/IdentifierType'
+        variety:
+          $ref: '#/components/schemas/IdentifierType'
+    BotanicalVarietyDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        designations:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+    Canton:
+      enum:
+      - AG
+      - AI
+      - AR
+      - BE
+      - BL
+      - BS
+      - FR
+      - GE
+      - GL
+      - GR
+      - JU
+      - LU
+      - NE
+      - NW
+      - OW
+      - SG
+      - SH
+      - SO
+      - SZ
+      - TG
+      - TI
+      - UR
+      - VD
+      - VS
+      - ZG
+      - ZH
+      type: string
+    ClosedDeliverySearchResultDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        productCatalogDto:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductCatalogDto'
+        deliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        represent:
+          $ref: '#/components/schemas/InventoryRepresentDto'
+        actions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryAction'
+    Country:
+      enum:
+      - AD
+      - AE
+      - AF
+      - AG
+      - AI
+      - AL
+      - AM
+      - AO
+      - AQ
+      - AR
+      - AS
+      - AT
+      - AU
+      - AW
+      - AX
+      - AZ
+      - BA
+      - BB
+      - BD
+      - BE
+      - BF
+      - BG
+      - BH
+      - BI
+      - BJ
+      - BL
+      - BM
+      - BN
+      - BO
+      - BQ
+      - BR
+      - BS
+      - BT
+      - BV
+      - BW
+      - BY
+      - BZ
+      - CA
+      - CC
+      - CD
+      - CF
+      - CG
+      - CH
+      - CI
+      - CK
+      - CL
+      - CM
+      - CN
+      - CO
+      - CR
+      - CU
+      - CV
+      - CW
+      - CX
+      - CY
+      - CZ
+      - DE
+      - DJ
+      - DK
+      - DM
+      - DO
+      - DZ
+      - EC
+      - EE
+      - EG
+      - EH
+      - ER
+      - ES
+      - ET
+      - FI
+      - FJ
+      - FK
+      - FM
+      - FO
+      - FR
+      - GA
+      - GB
+      - GD
+      - GE
+      - GF
+      - GH
+      - GI
+      - GL
+      - GM
+      - GN
+      - GP
+      - GQ
+      - GR
+      - GS
+      - GT
+      - GU
+      - GW
+      - GY
+      - HK
+      - HM
+      - HN
+      - HR
+      - HT
+      - HU
+      - ID
+      - IE
+      - IL
+      - IN
+      - IO
+      - IQ
+      - IR
+      - IS
+      - IT
+      - JM
+      - JO
+      - JP
+      - KE
+      - KG
+      - KH
+      - KI
+      - KM
+      - KN
+      - KP
+      - KR
+      - KW
+      - KY
+      - KZ
+      - LA
+      - LB
+      - LC
+      - LI
+      - LK
+      - LR
+      - LS
+      - LT
+      - LU
+      - LV
+      - LY
+      - MA
+      - MC
+      - MD
+      - ME
+      - MG
+      - MH
+      - MK
+      - ML
+      - MM
+      - MN
+      - MO
+      - MP
+      - MQ
+      - MR
+      - MS
+      - MT
+      - MU
+      - MV
+      - MW
+      - MX
+      - MY
+      - MZ
+      - NA
+      - NC
+      - NE
+      - NF
+      - NG
+      - NI
+      - NL
+      - "NO"
+      - NP
+      - NR
+      - NU
+      - NZ
+      - OM
+      - PA
+      - PE
+      - PF
+      - PG
+      - PH
+      - PK
+      - PL
+      - PM
+      - PN
+      - PR
+      - PS
+      - PT
+      - PW
+      - PY
+      - QA
+      - RE
+      - RO
+      - RS
+      - RU
+      - RW
+      - SA
+      - SB
+      - SC
+      - SD
+      - SE
+      - SG
+      - SH
+      - SI
+      - SJ
+      - SK
+      - SL
+      - SM
+      - SN
+      - SO
+      - SR
+      - SS
+      - ST
+      - SV
+      - SX
+      - SY
+      - SZ
+      - TC
+      - TD
+      - TF
+      - TG
+      - TH
+      - TJ
+      - TK
+      - TL
+      - TM
+      - TN
+      - TO
+      - TR
+      - TT
+      - TV
+      - TW
+      - TZ
+      - UA
+      - UG
+      - UM
+      - US
+      - UY
+      - UZ
+      - VA
+      - VC
+      - VE
+      - VG
+      - VI
+      - VN
+      - VU
+      - WF
+      - WS
+      - XA
+      - XC
+      - XK
+      - XL
+      - YE
+      - YT
+      - ZA
+      - ZM
+      - ZW
+      type: string
+    CreateDeliveryFromOrToPseudoInventoryDto:
+      required:
+      - deliveryDate
+      - productCatalogDeliveries
+      - quantity
+      type: object
+      properties:
+        deliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        deliveryExternalNo:
+          type: string
+        deliveryComment:
+          type: string
+        productCatalogDeliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateProductDeliveryDto'
+        quantity:
+          type: number
+        pseudoInventorySenderId:
+          $ref: '#/components/schemas/UUID'
+        inventoryRecipientId:
+          $ref: '#/components/schemas/UUID'
+        inventorySenderId:
+          $ref: '#/components/schemas/UUID'
+        pseudoInventoryRecipientId:
+          $ref: '#/components/schemas/UUID'
+        additionalInfo:
+          $ref: '#/components/schemas/PseudoInventoryAdditionalInfoDto'
+        pseudoInventorySender:
+          type: boolean
+        pseudoInventoryRecipient:
+          type: boolean
+    CreateDeliveryToCompanyDto:
+      required:
+      - deliveryDate
+      - productCatalogDeliveries
+      - quantity
+      - inventorySenderId
+      - inventoryRecipientId
+      type: object
+      properties:
+        deliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        deliveryExternalNo:
+          type: string
+        deliveryComment:
+          type: string
+        productCatalogDeliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateProductDeliveryDto'
+        quantity:
+          type: number
+        inventorySenderId:
+          $ref: '#/components/schemas/UUID'
+        inventoryRecipientId:
+          $ref: '#/components/schemas/UUID'
+    CreateDeliveryToPersonInventoryDto:
+      required:
+      - deliveryDate
+      - productCatalogDeliveries
+      - quantity
+      - inventorySenderId
+      - personInventoryInfoDto
+      type: object
+      properties:
+        deliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        deliveryExternalNo:
+          type: string
+        deliveryComment:
+          type: string
+        productCatalogDeliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateProductDeliveryDto'
+        quantity:
+          type: number
+        inventorySenderId:
+          $ref: '#/components/schemas/UUID'
+        personInventoryInfoDto:
+          $ref: '#/components/schemas/PersonInventoryInfoDto'
+    CreateProductDeliveryDto:
+      required:
+      - productId
+      - productNameDe
+      - productNameFr
+      - productNameIt
+      - productNameEn
+      - unit
+      - quantity
+      - productFamily
+      type: object
+      properties:
+        productId:
+          type: string
+        productNameDe:
+          type: string
+        productNameFr:
+          type: string
+        productNameIt:
+          type: string
+        productNameEn:
+          type: string
+        unit:
+          type: string
+        quantity:
+          type: number
+        productFamily:
+          $ref: '#/components/schemas/ProductFamilyType'
+        permissionHolder:
+          type: string
+    CultivationApplicationDto:
+      type: object
+      properties:
+        cultivationId:
+          $ref: '#/components/schemas/UUID'
+        areaId:
+          $ref: '#/components/schemas/UUID'
+    CultivationDto:
+      type: object
+      properties:
+        areaId:
+          $ref: '#/components/schemas/UUID'
+        areaName:
+          type: string
+        areaSize:
+          type: number
+        areaLayer:
+          $ref: '#/components/schemas/AreaLayer'
+        cultivationId:
+          $ref: '#/components/schemas/UUID'
+        cultivationSize:
+          type: number
+        allocatedFromInclusive:
+          $ref: '#/components/schemas/LocalDate'
+        allocatedToInclusive:
+          $ref: '#/components/schemas/LocalDate'
+        botanicalCulture:
+          $ref: '#/components/schemas/BotanicalPlantDto'
+        botanicalVarieties:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotanicalVarietyDto'
+        agronomicCropCategory:
+          $ref: '#/components/schemas/AgronomicCropCategoryDto'
+    CultivationSearchResultDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        botanicalCulture:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+        botanicalVarieties:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigifluxMultilingualDto'
+        allocatedFromInclusive:
+          $ref: '#/components/schemas/LocalDate'
+        allocatedToInclusive:
+          $ref: '#/components/schemas/LocalDate'
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationDto'
+    CultivationType:
+      required:
+      - cultivationTypeId
+      type: object
+      properties:
+        cultivationTypeId:
+          $ref: '#/components/schemas/IdentifierType'
+    Date:
+      format: date
+      type: string
+      example: 2022-03-10
+    DateOfUtilisationType:
+      required:
+      - dateFrom
+      - dateTo
+      type: object
+      properties:
+        dateFrom:
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/Date'
+        dateTo:
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/Date'
+    DateRangeDto:
+      type: object
+      properties:
+        from:
+          $ref: '#/components/schemas/LocalDate'
+        to:
+          $ref: '#/components/schemas/LocalDate'
+    DeleteDeliveryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+    DeliveryAction:
+      enum:
+      - ACCEPT
+      - REJECT
+      - INFO
+      - DELETE
+      - REVERT
+      type: string
+    DeliveryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        deliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        deliveryExternalNo:
+          type: string
+        deliveryComment:
+          type: string
+        sender:
+          $ref: '#/components/schemas/InventoryDto'
+        recipient:
+          $ref: '#/components/schemas/InventoryDto'
+        productCatalogDeliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductDeliveryDto'
+        histories:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryHistoryDto'
+        editPermission:
+          type: boolean
+        transactionNumber:
+          format: int64
+          type: integer
+    DeliveryHistoryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        comment:
+          type: string
+        changedBy:
+          type: string
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        changeDate:
+          $ref: '#/components/schemas/LocalDateTime'
+        createdByBatchJob:
+          type: boolean
+    DeliveryStatus:
+      enum:
+      - SENT
+      - ACCEPTED
+      - REJECTED
+      - CREATED
+      - DELETED
+      type: string
+    DigifluxMultilingualDto:
+      type: object
+      properties:
+        descriptorDe:
+          type: string
+        descriptorFr:
+          type: string
+        descriptorIt:
+          type: string
+        descriptorEn:
+          type: string
+        descriptorLa:
+          type: string
+    FavoriteCategory:
+      enum:
+      - DELIVERY
+      - APPLICATION
+      - AREA_TRANSFER
+      - ACTIVE_INVENTORY
+      type: string
+    FavoritePsmUpdateDto:
+      type: object
+      properties:
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+        userId:
+          $ref: '#/components/schemas/UUID'
+        productId:
+          type: string
+        category:
+          $ref: '#/components/schemas/FavoriteCategory'
+    FetchDeliveryRequestDto:
+      type: object
+      properties:
+        code:
+          type: string
+        agateId:
+          type: string
+        postalCode:
+          type: string
+    FetchDeliveryResultDto:
+      type: object
+      properties:
+        deliveryId:
+          $ref: '#/components/schemas/UUID'
+        inventorySenderId:
+          $ref: '#/components/schemas/UUID'
+        personInventoryRecipientId:
+          $ref: '#/components/schemas/UUID'
+    IdentifierType:
+      description: A digiflux identifier consists of an id and a system name of the
+        system that issued this id.
+      required:
+      - id
+      - sourceSystemId
+      type: object
+      properties:
+        id:
+          maxLength: 50
+          type: string
+        sourceSystemId:
+          maxLength: 50
+          type: string
+    ImportLineErrorResultDto:
+      type: object
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+    ImportResultDto:
+      type: object
+      properties:
+        errorLines:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ImportLineErrorResultDto'
+        total:
+          format: int32
+          type: integer
+        success:
+          format: int32
+          type: integer
+        failed:
+          format: int32
+          type: integer
+    InventoryAddress:
+      description: |
+        Entity that describes an 'address' for pseudo inventory deliveries.
+      type: object
+      properties:
+        companyName:
+          maxLength: 60
+          type: string
+        firstName:
+          maxLength: 30
+          type: string
+        lastName:
+          maxLength: 30
+          type: string
+        street:
+          maxLength: 150
+          type: string
+        streetNumber:
+          maxLength: 30
+          type: string
+        postalCode:
+          maxLength: 30
+          type: string
+        city:
+          maxLength: 40
+          type: string
+        canton:
+          maxLength: 2
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/Canton'
+        country:
+          maxLength: 2
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/Country'
+        phoneNumber:
+          maxLength: 20
+          type: string
+        email:
+          maxLength: 100
+          type: string
+    InventoryApplicationSearchResultDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        usedOn:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+        productApplications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductApplicationDto'
+        applicationDate:
+          $ref: '#/components/schemas/LocalDate'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationAction'
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+    InventoryConfigDto:
+      type: object
+      properties:
+        cantonOfResidence:
+          $ref: '#/components/schemas/Canton'
+        acceptDeliveriesDressedSeed:
+          $ref: '#/components/schemas/AcceptDeliveries'
+        acceptDeliveriesPsm:
+          $ref: '#/components/schemas/AcceptDeliveries'
+    InventoryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        localUnitInventory:
+          $ref: '#/components/schemas/LocalUnitDto'
+        personUserInventory:
+          $ref: '#/components/schemas/UserDto'
+        pseudoInventoryTransitInfo:
+          $ref: '#/components/schemas/PseudoInventoryTransitInfoDto'
+        pseudoInventoryAdditionalInfo:
+          $ref: '#/components/schemas/PseudoInventoryAdditionalInfoDto1'
+        config:
+          $ref: '#/components/schemas/InventoryConfigDto'
+        permissionUsers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/UserDto'
+        companyInventory:
+          type: boolean
+        personInventory:
+          type: boolean
+    InventoryRepresentDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        companyInventory:
+          $ref: '#/components/schemas/LocalUnitDto'
+        personalInventory:
+          $ref: '#/components/schemas/PersonalInventoryDto'
+        pseudoInventoryTransitInfo:
+          $ref: '#/components/schemas/PseudoInventoryTransitInfoDto'
+        pseudoInventoryAdditionalInfo:
+          $ref: '#/components/schemas/PseudoInventoryAdditionalInfoDto1'
+    InventoryType:
+      enum:
+      - LOCAL_UNIT
+      - PRIVATE
+      - PRIVATE_TRANSIT
+      - PSEUDO
+      type: string
+    LocalDate:
+      format: date
+      type: string
+      example: 2022-03-10
+    LocalDateTime:
+      format: date-time
+      type: string
+      example: 2022-03-10T12:15:50
+    LocalUnitDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        burNr:
+          type: string
+        uidNumber:
+          format: int32
+          type: integer
+        name:
+          type: string
+        businessName:
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressDto'
+    MeasurementType:
+      required:
+      - value
+      - unit
+      type: object
+      properties:
+        value:
+          type: number
+        unit:
+          enum:
+          - kg
+          - m3
+          - pc
+          - °C
+          - J
+          - S
+          - S/m
+          - '%'
+          - kg/m3
+          - kg/pc
+          - m
+          - m2
+          - kg/m2
+          - m3/m2
+          - m3/kg
+          - pc/m2
+          - IU
+          - IU/kg
+          - mol
+          - n/a
+          type: string
+    NonCropType:
+      required:
+      - nonCrop
+      type: object
+      properties:
+        nonCrop:
+          $ref: '#/components/schemas/IdentifierType'
+    NotificationFrequency:
+      enum:
+      - NEVER
+      - IMMEDIATELY
+      - DAILY
+      - WEEKLY
+      type: string
+    OpenDeliverySearchResultDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        productCatalogDto:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductCatalogDto'
+        deliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        represent:
+          $ref: '#/components/schemas/InventoryRepresentDto'
+        actions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryAction'
+    PersonInventoryInfoDto:
+      required:
+      - personInventoryFirstName
+      - personInventoryLastName
+      - personInventoryEmail
+      - personInventoryCity
+      - personInventoryCanton
+      - personInventoryPostalCode
+      - personInventoryBirthDate
+      type: object
+      properties:
+        personInventoryFirstName:
+          maxLength: 30
+          type: string
+        personInventoryLastName:
+          maxLength: 30
+          type: string
+        personInventoryEmail:
+          maxLength: 50
+          type: string
+        personInventoryPhoneNumber:
+          maxLength: 20
+          pattern: "\\+([1-9][0-9]{9,18})|(00[0-9]{9,18})|(0[0-9]{9,19})"
+          type: string
+        personInventoryCity:
+          maxLength: 40
+          type: string
+        personInventoryCanton:
+          $ref: '#/components/schemas/Canton'
+        personInventoryPostalCode:
+          maxLength: 4
+          pattern: "^[0-9]{4}$"
+          type: string
+        personInventoryBirthDate:
+          $ref: '#/components/schemas/LocalDate'
+    PersonalInventoryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        canton:
+          $ref: '#/components/schemas/Canton'
+        phoneNumber:
+          type: string
+        email:
+          type: string
+        birthDate:
+          $ref: '#/components/schemas/LocalDate'
+        street:
+          type: string
+    PlantProductDescriptorDto:
+      type: object
+      properties:
+        designation_deu:
+          type: string
+        designation_fra:
+          type: string
+        designation_ita:
+          type: string
+        designation_eng:
+          type: string
+    PlantProtectionProductApplicationType:
+      required:
+      - dateOfApplication
+      - product
+      - quantity
+      - target
+      - locationOfUtilisation
+      - appliedBy
+      type: object
+      properties:
+        digifluxId:
+          format: int32
+          description: digiFLUX ID for the product application.
+          type: integer
+        alternateId:
+          description: External ID for the product application. Can be used by an
+            external system to to track its applications.
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/IdentifierType'
+        dateOfApplication:
+          $ref: '#/components/schemas/DateOfUtilisationType'
+        product:
+          $ref: '#/components/schemas/IdentifierType'
+        productFamily:
+          description: The product family to which the applied product belongs
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/ProductFamilyType'
+        productCategory:
+          description: The product category to which the applied product belongs
+          maxLength: 50
+          type: string
+        quantity:
+          $ref: '#/components/schemas/MeasurementType'
+        target:
+          $ref: '#/components/schemas/MeasurementType'
+        locationOfUtilisation:
+          description: "Bur number of local unit, where application was applied."
+          maxLength: 9
+          minLength: 9
+          pattern: "[A-B][1-9]{1}[0-9]{7}"
+          type: string
+        applicationTarget:
+          oneOf:
+          - $ref: '#/components/schemas/BotanicalPlantType'
+          - $ref: '#/components/schemas/CultivationType'
+          - $ref: '#/components/schemas/NonCropType'
+        applicationArea:
+          $ref: '#/components/schemas/IdentifierType'
+        appliedBy:
+          description: Uid of the company responsible for the application
+          maxLength: 12
+          minLength: 12
+          pattern: "CHE[1-9]{1}[0-9]{8}"
+          type: string
+        comment:
+          description: A comment for this transaction.
+          maxLength: 200
+          type: string
+        lastModifiedAt:
+          description: "A timestamp, when this record was last modified."
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/Date'
+    PlantProtectionProductCategoryDto:
+      type: object
+      properties:
+        code:
+          type: string
+        descriptor:
+          $ref: '#/components/schemas/PlantProductDescriptorDto'
+    Principle:
+      enum:
+      - ALL
+      - RESIDENCE
+      - LOCATION
+      type: string
+    ProductAction:
+      enum:
+      - INFO
+      - CREATE_DELIVERY
+      - APPLY
+      type: string
+    ProductAdminSearchDto:
+      required:
+      - dateRange
+      - productFamily
+      - language
+      type: object
+      properties:
+        productNo:
+          type: string
+        dateRange:
+          $ref: '#/components/schemas/DateRangeDto'
+        productFamily:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFamilyType'
+        language:
+          type: string
+        uid:
+          type: string
+        bur:
+          type: string
+        name:
+          type: string
+        cantons:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Canton'
+        principle:
+          $ref: '#/components/schemas/Principle'
+        inventoryType:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryType'
+    ProductAdminSearchResultDto:
+      type: object
+      properties:
+        productId:
+          type: string
+        inventoryId:
+          type: string
+        productCatalog:
+          $ref: '#/components/schemas/ProductCatalogDto1'
+        inflow:
+          type: number
+        outflow:
+          type: number
+        apply:
+          type: number
+        total:
+          type: number
+        lastDeliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        uid:
+          type: string
+        bur:
+          type: string
+        name:
+          type: string
+        locationOfInventory:
+          $ref: '#/components/schemas/Canton'
+        cantonOfResidence:
+          $ref: '#/components/schemas/Canton'
+        businessName:
+          type: string
+    ProductApplicationCreateDto:
+      required:
+      - productType
+      - quantity
+      type: object
+      properties:
+        productType:
+          $ref: '#/components/schemas/ProductTypeDto'
+        quantity:
+          type: number
+    ProductApplicationDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        quantity:
+          type: number
+        productType:
+          $ref: '#/components/schemas/ProductTypeDto'
+    ProductApplicationDto1:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        productType:
+          $ref: '#/components/schemas/ProductTypeDto'
+        quantity:
+          type: number
+    ProductApplicationUpdateDto:
+      required:
+      - productType
+      - quantity
+      type: object
+      properties:
+        productType:
+          $ref: '#/components/schemas/ProductTypeDto'
+        quantity:
+          type: number
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+    ProductCatalogDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        productFamily:
+          $ref: '#/components/schemas/ProductFamilyType'
+        productNameDe:
+          type: string
+        productNameFr:
+          type: string
+        productNameIt:
+          type: string
+        productNameEn:
+          type: string
+        productId:
+          type: string
+        quantity:
+          type: number
+        unit:
+          $ref: '#/components/schemas/ProductUnit'
+        productCatalogUnit:
+          type: string
+        permissionHolder:
+          type: string
+        admissionNumber:
+          type: string
+        ingredient:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductIngredientDto'
+    ProductCatalogDto1:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        productFamily:
+          $ref: '#/components/schemas/ProductFamilyType'
+        productNameDe:
+          type: string
+        productNameFr:
+          type: string
+        productNameIt:
+          type: string
+        productNameEn:
+          type: string
+        unit:
+          $ref: '#/components/schemas/ProductUnit'
+        productCatalogUnit:
+          type: string
+    ProductDeliveryDto:
+      type: object
+      properties:
+        productId:
+          type: string
+        productNameDe:
+          type: string
+        productNameFr:
+          type: string
+        productNameIt:
+          type: string
+        productNameEn:
+          type: string
+        quantity:
+          type: number
+        unit:
+          $ref: '#/components/schemas/ProductUnit'
+        productCatalogUnit:
+          type: string
+        permissionHolder:
+          type: string
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductIngredientDto'
+        productFamily:
+          $ref: '#/components/schemas/ProductFamilyType'
+    ProductDescriptorDto:
+      type: object
+      properties:
+        designationDeu:
+          type: string
+        designationFra:
+          type: string
+        designationIta:
+          type: string
+        designationEng:
+          type: string
+    ProductDetailCriteriaDto:
+      required:
+      - productTypeId
+      - inventoryId
+      type: object
+      properties:
+        productTypeId:
+          $ref: '#/components/schemas/UUID'
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+    ProductDetailSearchResultDto:
+      type: object
+      properties:
+        transactionId:
+          $ref: '#/components/schemas/UUID'
+        transactionDate:
+          $ref: '#/components/schemas/LocalDate'
+        quantity:
+          type: number
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+        destination:
+          $ref: '#/components/schemas/DigifluxMultilingualDto'
+        type:
+          $ref: '#/components/schemas/ProductDetailType'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAction'
+        applicationType:
+          $ref: '#/components/schemas/ApplicationType'
+    ProductDetailType:
+      enum:
+      - INFLOW
+      - OUTFLOW
+      - APPLICATION
+      type: string
+    ProductFamilyType:
+      enum:
+      - FARM_MANURE_RECYCLING
+      - PLANT_PROTECTION_PRODUCT
+      - FERTILISER
+      - DRESSED_SEED
+      - FEEDSTUFF
+      type: string
+    ProductIngredientDto:
+      type: object
+      properties:
+        quantity:
+          type: number
+        unit:
+          $ref: '#/components/schemas/ProductIngredientUnitDto'
+        substance:
+          $ref: '#/components/schemas/ProductIngredientSubstanceDto'
+    ProductIngredientSubstanceDto:
+      type: object
+      properties:
+        id:
+          type: string
+        descriptor:
+          $ref: '#/components/schemas/ProductDescriptorDto'
+    ProductIngredientUnitDto:
+      type: object
+      properties:
+        code:
+          type: string
+        descriptor:
+          $ref: '#/components/schemas/ProductDescriptorDto'
+    ProductInventorySearchDto:
+      required:
+      - dateRange
+      - productFamily
+      - language
+      type: object
+      properties:
+        productNo:
+          type: string
+        dateRange:
+          $ref: '#/components/schemas/DateRangeDto'
+        productFamily:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFamilyType'
+        language:
+          type: string
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+    ProductInventorySearchResultDto:
+      type: object
+      properties:
+        productId:
+          type: string
+        productCatalog:
+          $ref: '#/components/schemas/ProductCatalogDto1'
+        inflow:
+          type: number
+        outflow:
+          type: number
+        apply:
+          type: number
+        total:
+          type: number
+        lastDeliveryDate:
+          $ref: '#/components/schemas/LocalDate'
+        additionalActions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAction'
+    ProductRetailNameDto:
+      type: object
+      properties:
+        designationDeu:
+          type: string
+        designationFra:
+          type: string
+        designationIta:
+          type: string
+        designationEng:
+          type: string
+    ProductShipmentType:
+      description: |
+        Entity that describes a 'shipment' transaction. Such a transaction includes a sell/buy operation.
+        As a consequence, a product is taken from one stock and transferred to another one.
+      required:
+      - product
+      - shippedFromStock
+      - shippedToStock
+      - quantity
+      - shipmentDate
+      - productShipmentStatus
+      type: object
+      properties:
+        id:
+          description: The digiflux id for the shipment.
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/IdentifierType'
+        alternateId:
+          description: External ID for the shipment. Can be used by an external system
+            to to track its deliveries.
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/IdentifierType'
+        product:
+          description: The product that was shipped.
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/IdentifierType'
+        productFamily:
+          description: The product family to which the applied product belongs
+          type: string
+        productCategoryCode:
+          description: The product category to which the applied product belongs
+          maxLength: 50
+          type: string
+        productCategoryDe:
+          description: The product category in De to which the applied product belongs
+          maxLength: 50
+          type: string
+        productCategoryFr:
+          description: The product category in Fr to which the applied product belongs
+          maxLength: 50
+          type: string
+        productCategoryIt:
+          description: The product category in IT to which the applied product belongs
+          maxLength: 50
+          type: string
+        productCategoryEn:
+          description: The product category in En to which the applied product belongs
+          maxLength: 50
+          type: string
+        shippedFromStock:
+          description: The digiflux ID of the stock from which the product was taken
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/IdentifierType'
+        shippedToStock:
+          description: The digiflux ID of the stock wo which the product was added
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/IdentifierType'
+        quantity:
+          description: The quantity of the product in the shipment
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/MeasurementType'
+        shipmentDate:
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/Date'
+        productShipmentStatus:
+          $ref: '#/components/schemas/IdentifierType'
+        comment:
+          description: A comment about this transaction
+          maxLength: 200
+          type: string
+        rejectionReason:
+          description: Reason if the delivery was rejected
+          maxLength: 200
+          type: string
+        lastModifiedAt:
+          description: "A timestamp, when this record was last modified."
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/Date'
+        backupToAddress:
+          description: The address to send product in case receiver not found
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/AddressType'
+        shippedFromAddress:
+          description: The address to send product in case sender is pseudo inventory
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/InventoryAddress'
+        shippedToAddress:
+          description: The address to send product in case receiver is pseudo inventory
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/InventoryAddress'
+    ProductTransactionUnitDto:
+      type: object
+      properties:
+        code:
+          type: string
+        descriptor:
+          $ref: '#/components/schemas/ProductDescriptorDto'
+    ProductTypeDto:
+      required:
+      - productFamily
+      - productNameDe
+      - productNameFr
+      - productNameIt
+      - productNameEn
+      - productId
+      - unit
+      - productCatalogUnit
+      - permissionHolder
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        productFamily:
+          $ref: '#/components/schemas/ProductFamilyType'
+        productNameDe:
+          type: string
+        productNameFr:
+          type: string
+        productNameIt:
+          type: string
+        productNameEn:
+          type: string
+        productId:
+          type: string
+        unit:
+          $ref: '#/components/schemas/ProductUnit'
+        productCatalogUnit:
+          type: string
+        permissionHolder:
+          type: string
+        admissionNumber:
+          type: string
+        ingredient:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductIngredientDto'
+    ProductUnit:
+      enum:
+      - KG
+      - M3
+      - PC
+      - NA
+      type: string
+    PseudoInventoryAdditionalInfoDto:
+      required:
+      - street
+      - houseNumber
+      - postalCode
+      - city
+      - country
+      - phoneNumber
+      - email
+      type: object
+      properties:
+        firstName:
+          maxLength: 30
+          type: string
+        lastName:
+          maxLength: 30
+          type: string
+        companyName:
+          maxLength: 60
+          type: string
+        street:
+          maxLength: 150
+          type: string
+        houseNumber:
+          maxLength: 30
+          type: string
+        postalCode:
+          maxLength: 4
+          pattern: "^[0-9]{4}$"
+          type: string
+        city:
+          maxLength: 40
+          type: string
+        country:
+          $ref: '#/components/schemas/Country'
+        canton:
+          $ref: '#/components/schemas/Canton'
+        phoneNumber:
+          maxLength: 20
+          pattern: "\\+([1-9 ][0-9 ]{9,18})|(00[0-9 ]{9,18})|(0[0-9 ]{9,19})"
+          type: string
+        email:
+          type: string
+        pseudoInventory:
+          $ref: '#/components/schemas/PseudoInventoryDto'
+    PseudoInventoryAdditionalInfoDto1:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        canton:
+          $ref: '#/components/schemas/Canton'
+        phoneNumber:
+          type: string
+        email:
+          type: string
+        nameDE:
+          type: string
+        nameFR:
+          type: string
+        nameIT:
+          type: string
+        addressType:
+          $ref: '#/components/schemas/PseudoInventoryAddressType'
+        companyName:
+          type: string
+        country:
+          $ref: '#/components/schemas/Country'
+        street:
+          type: string
+        houseNumber:
+          type: string
+    PseudoInventoryAddressType:
+      enum:
+      - NO_ADDRESS
+      - COMPANY_ADDRESS
+      - PRIVATE_ADDRESS
+      - INVENTORY_ADDRESS
+      type: string
+    PseudoInventoryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        nameDE:
+          type: string
+        nameFR:
+          type: string
+        nameIT:
+          type: string
+        transactionRole:
+          type: string
+        addressType:
+          $ref: '#/components/schemas/PseudoInventoryAddressType'
+        validityDate:
+          $ref: '#/components/schemas/DateRangeDto'
+        code:
+          type: string
+    PseudoInventoryTransitInfoDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        postalCode:
+          type: string
+        city:
+          type: string
+        canton:
+          $ref: '#/components/schemas/Canton'
+        email:
+          type: string
+        birthDate:
+          $ref: '#/components/schemas/LocalDate'
+        phoneNumber:
+          type: string
+    RejectDeliveryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+        rejectReason:
+          type: string
+    RevertDeliveryDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        inventoryId:
+          $ref: '#/components/schemas/UUID'
+    SearchCriteriaDtoProductAdminSearchDto:
+      type: object
+      properties:
+        page:
+          $ref: '#/components/schemas/SearchPageDto'
+        criteria:
+          $ref: '#/components/schemas/ProductAdminSearchDto'
+        sort:
+          $ref: '#/components/schemas/SortDto'
+    SearchCriteriaDtoProductDetailCriteriaDto:
+      type: object
+      properties:
+        page:
+          $ref: '#/components/schemas/SearchPageDto'
+        criteria:
+          $ref: '#/components/schemas/ProductDetailCriteriaDto'
+        sort:
+          $ref: '#/components/schemas/SortDto'
+    SearchCriteriaDtoProductInventorySearchDto:
+      type: object
+      properties:
+        page:
+          $ref: '#/components/schemas/SearchPageDto'
+        criteria:
+          $ref: '#/components/schemas/ProductInventorySearchDto'
+        sort:
+          $ref: '#/components/schemas/SortDto'
+    SearchCriteriaDtoSearchProductDressedSeedCriteriaDto:
+      type: object
+      properties:
+        page:
+          $ref: '#/components/schemas/SearchPageDto'
+        criteria:
+          $ref: '#/components/schemas/SearchProductDressedSeedCriteriaDto'
+        sort:
+          $ref: '#/components/schemas/SortDto'
+    SearchPageDto:
+      type: object
+      properties:
+        offset:
+          format: int32
+          type: integer
+        limit:
+          format: int32
+          type: integer
+    SearchProductDressedSeedCriteriaDto:
+      type: object
+      properties:
+        dsName:
+          type: string
+        seedDressing:
+          type: string
+        dsIngredient:
+          type: string
+        dsRetailName:
+          type: string
+      deprecated: true
+    SearchProductDressedSeedResultDto:
+      type: object
+      properties:
+        id:
+          type: string
+        descriptor:
+          $ref: '#/components/schemas/ProductDescriptorDto'
+        transactionUnit:
+          $ref: '#/components/schemas/ProductTransactionUnitDto'
+        retailName:
+          $ref: '#/components/schemas/ProductRetailNameDto'
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductIngredientDto'
+      deprecated: true
+    SearchProductPsmResultDto:
+      type: object
+      properties:
+        id:
+          type: string
+        descriptor:
+          $ref: '#/components/schemas/ProductDescriptorDto'
+        permissionHolder:
+          type: string
+        admissionNumber:
+          type: string
+        plantProtectionProductCategory:
+          $ref: '#/components/schemas/PlantProtectionProductCategoryDto'
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductIngredientDto'
+        transactionUnit:
+          $ref: '#/components/schemas/ProductTransactionUnitDto'
+        favorite:
+          type: boolean
+    SearchResultDtoAdminApplicationSearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminApplicationSearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoAllDeliverySearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllDeliverySearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoClosedDeliverySearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosedDeliverySearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoCultivationSearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CultivationSearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoInventoryApplicationSearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryApplicationSearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoOpenDeliverySearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpenDeliverySearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoProductAdminSearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAdminSearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoProductDetailSearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductDetailSearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoProductInventorySearchResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductInventorySearchResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoSearchProductDressedSeedResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchProductDressedSeedResultDto'
+        total:
+          format: int64
+          type: integer
+    SearchResultDtoSearchProductPsmResultDto:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchProductPsmResultDto'
+        total:
+          format: int64
+          type: integer
+    ShipmentStatusDto:
+      description: DTO containing the new status for a shipment and an optional rejection
+        reason.
+      required:
+      - newStatus
+      type: object
+      properties:
+        newStatus:
+          description: The new status to be set. The service only allows "ACCEPTED"
+            and "REJECTED"
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/DeliveryStatus'
+        rejectionReason:
+          description: "An optional explanation, why this shipment entry has been\
+            \ rejected."
+          type: string
+    SortDto:
+      type: object
+      properties:
+        colId:
+          type: string
+        sort:
+          type: string
+    SortOrder:
+      enum:
+      - ASC
+      - DESC
+      type: string
+    SortOrder1:
+      enum:
+      - ASC
+      - DESC
+      type: string
+    UUID:
+      format: uuid
+      pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+      type: string
+    UserDto:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        version:
+          format: int32
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        city:
+          type: string
+        deliveryNotificationFrequency:
+          $ref: '#/components/schemas/NotificationFrequency'
+        language:
+          type: string
+        lastDeliveryNotificationTimestamp:
+          $ref: '#/components/schemas/LocalDateTime'
+        agateId:
+          type: string
+  securitySchemes:
+    SecurityScheme:
+      type: openIdConnect
+      description: Authentication
+      openIdConnectUrl: https://idp-rf.agate.ch/auth/realms/agate/.well-known/openid-configuration
